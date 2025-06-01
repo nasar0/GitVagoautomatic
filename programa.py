@@ -1,20 +1,28 @@
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from datetime import datetime
-from automatic_git_vago import crearInterfaz , mostrar_carpetas
+import subprocess
+import sys
+from importlib import import_module
+
+paquetes = [
+    {"nombre": "pyinstaller", "import_name": "PyInstaller"},
+    {"nombre": "python-crontab", "import_name": "crontab"},
+    {"nombre": "ttkbootstrap", "import_name": "ttkbootstrap"}
+]
+
+def verificar_instalar_paquetes():
+    for paquete in paquetes:
+        try:
+            import_module(paquete["import_name"].split('.')[0])
+        except ImportError:
+            try:
+                print(f"Instalando paquete: {paquete['nombre']}...")
+                subprocess.check_call([sys.executable, "-m", "pip", "install", paquete["nombre"]])
+            except subprocess.CalledProcessError as e:
+                print(f"❌ Error al instalar {paquete['nombre']}: {e}. Sigue adelante si no es crítico.")
+
+if __name__ == "__main__":
+    verificar_instalar_paquetes()
+
+    
+from automatic_git_vago import crearInterfaz,crearCrontab
+crearCrontab()
 crearInterfaz()
-default_args = {
-    "owner": "airflow",
-    "start_date": datetime(2025, 1, 1),
-}
-
-with DAG(
-    dag_id="primer_dag_etl",
-    schedule_interval="@daily",  # Corre una vez al día
-    default_args=default_args,
-    catchup=False,
-    description="Git Vago Automatic",
-) as dag:
-    data = mostrar_carpetas()
-
-   

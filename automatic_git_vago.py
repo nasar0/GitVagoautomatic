@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import sqlite3
 import os
+from datetime import datetime
+
 
 def conn():
     ruta_db = os.path.join(os.path.dirname(os.path.abspath(__file__)), "automatizacion.db")
@@ -141,5 +143,12 @@ def crearInterfaz():
     mostrar_carpetas()
     ventana.mainloop()
 
-if __name__ == "__main__":
-    crearInterfaz()
+def crearCrontab():
+    c, con = conn()
+    c.execute("SELECT * FROM carpetas")
+    data = c.fetchall()
+    
+    cron.remove_all(comment='gitautocommit')
+    
+    for fila in data:
+        
